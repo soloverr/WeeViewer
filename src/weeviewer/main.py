@@ -1098,8 +1098,20 @@ class WeeViewer(wx.Frame):
             # Calculate border color (slightly darker/lighter than background)
             if theme_name == 'dark':
                 border_color = wx.Colour(80, 80, 80)  # Darker gray for dark theme
+                # Special colors for dark mode
+                toolbar_text_color = wx.Colour(232, 232, 232)  # Light gray-white for toolbar text
+                search_input_bg = wx.Colour(45, 45, 45)  # Slightly lighter background for search inputs
+                search_input_fg = wx.Colour(232, 232, 232)  # Light gray-white for search input text
+                menubar_bg = wx.Colour(25, 25, 25)  # Darker background for menubar
+                menubar_fg = wx.Colour(232, 232, 232)  # Light gray-white for menubar text
             else:
                 border_color = wx.Colour(200, 200, 200)  # Lighter gray for light theme
+                # Use standard colors for light mode
+                toolbar_text_color = fg_color
+                search_input_bg = wx.Colour(250, 250, 250)  # Light background for search inputs
+                search_input_fg = fg_color
+                menubar_bg = bg_color
+                menubar_fg = fg_color
             
             # Set system colors first (for scrollbars and buttons)
             self._set_system_colors(theme_name)
@@ -1134,20 +1146,59 @@ class WeeViewer(wx.Frame):
                 self.path_text.SetBackgroundColour(bg_color)
                 self.path_text.SetForegroundColour(fg_color)
             
-            # Apply to toolbar with special handling
+            # Apply to toolbar with special text color
             if hasattr(self, 'toolbar'):
-                self._apply_theme_to_toolbar(self.toolbar, bg_color, fg_color)
+                self.toolbar.SetBackgroundColour(bg_color)
+                self.toolbar.SetForegroundColour(toolbar_text_color)
             
-            # Apply to menubar and all menus
+            # Apply to menubar with darker background in dark mode
             menubar = self.GetMenuBar()
             if menubar:
-                menubar.SetBackgroundColour(bg_color)
-                menubar.SetForegroundColour(fg_color)
+                menubar.SetBackgroundColour(menubar_bg)
+                menubar.SetForegroundColour(menubar_fg)
                 # Apply to all menus in menubar
                 for i in range(menubar.GetMenuCount()):
                     menu = menubar.GetMenu(i)
                     if menu:
-                        self._apply_theme_to_menu(menu, bg_color, fg_color)
+                        menu.SetBackgroundColour(menubar_bg)
+                        menu.SetTextColour(menubar_fg)
+                        # Apply to all menu items
+                        for item in menu.GetMenuItems():
+                            if item.IsSubMenu():
+                                submenu = item.GetSubMenu()
+                                submenu.SetBackgroundColour(menubar_bg)
+                                submenu.SetTextColour(menubar_fg)
+            
+            # Apply to search input boxes
+            if hasattr(self, 'search_text'):
+                self.search_text.SetBackgroundColour(search_input_bg)
+                self.search_text.SetForegroundColour(search_input_fg)
+            if hasattr(self, 'jump_text'):
+                self.jump_text.SetBackgroundColour(search_input_bg)
+                self.jump_text.SetForegroundColour(search_input_fg)
+            
+            # Apply to search panel buttons and checkboxes
+            if hasattr(self, 'search_btn'):
+                self.search_btn.SetBackgroundColour(bg_color)
+                self.search_btn.SetForegroundColour(toolbar_text_color)
+            if hasattr(self, 'next_btn'):
+                self.next_btn.SetBackgroundColour(bg_color)
+                self.next_btn.SetForegroundColour(toolbar_text_color)
+            if hasattr(self, 'prev_btn'):
+                self.prev_btn.SetBackgroundColour(bg_color)
+                self.prev_btn.SetForegroundColour(toolbar_text_color)
+            if hasattr(self, 'clear_btn'):
+                self.clear_btn.SetBackgroundColour(bg_color)
+                self.clear_btn.SetForegroundColour(toolbar_text_color)
+            if hasattr(self, 'whole_word'):
+                self.whole_word.SetBackgroundColour(bg_color)
+                self.whole_word.SetForegroundColour(toolbar_text_color)
+            if hasattr(self, 'regex_mode'):
+                self.regex_mode.SetBackgroundColour(bg_color)
+                self.regex_mode.SetForegroundColour(toolbar_text_color)
+            if hasattr(self, 'search_result_label'):
+                self.search_result_label.SetBackgroundColour(bg_color)
+                self.search_result_label.SetForegroundColour(toolbar_text_color)
             
             # Apply to status bar
             status_bar = self.GetStatusBar()
@@ -1172,6 +1223,12 @@ class WeeViewer(wx.Frame):
                 menubar.Refresh()
             if status_bar:
                 status_bar.Refresh()
+            
+            # Refresh search controls
+            if hasattr(self, 'search_text'):
+                self.search_text.Refresh()
+            if hasattr(self, 'jump_text'):
+                self.jump_text.Refresh()
             
             # Update main window to ensure all changes take effect
             self.Update()
