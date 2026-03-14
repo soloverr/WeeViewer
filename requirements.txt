@@ -1,0 +1,17 @@
+# WeeViewer Dependencies
+
+# GUI Framework
+wxPython>=4.2.0
+
+# XML Processing
+lxml>=4.9.0
+
+# Clipboard Operations
+pyperclip>=1.8.0
+
+# PDF Generation
+reportlab>=3.6.0
+
+# Development Dependencies (optional)
+pytest>=7.0.0
+mypy>=1.0.0
