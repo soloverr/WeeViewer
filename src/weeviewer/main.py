@@ -991,16 +991,60 @@ class WeeViewer(wx.Frame):
             theme_name: Theme name
         """
         if self.theme_manager.set_theme(theme_name):
-            # Apply theme to text control
+            # Apply theme to entire application
             theme = self.theme_manager.get_current_theme()
-            self.text_display.SetBackgroundColour(wx.Colour(theme.background))
-            self.text_display.SetForegroundColour(wx.Colour(theme.foreground))
-
-            # Refresh display
+            
+            # Parse theme colors
+            bg_color = wx.Colour(theme.background)
+            fg_color = wx.Colour(theme.foreground)
+            
+            # Apply to main window
+            self.SetBackgroundColour(bg_color)
+            
+            # Apply to panel
+            if hasattr(self, 'panel'):
+                self.panel.SetBackgroundColour(bg_color)
+            
+            # Apply to splitter window
+            if hasattr(self, 'splitter'):
+                self.splitter.SetBackgroundColour(bg_color)
+            
+            # Apply to tree control
+            if hasattr(self, 'tree'):
+                self.tree.SetBackgroundColour(bg_color)
+                self.tree.SetForegroundColour(fg_color)
+            
+            # Apply to text display
+            self.text_display.SetBackgroundColour(bg_color)
+            self.text_display.SetForegroundColour(fg_color)
+            
+            # Apply to path text control
+            if hasattr(self, 'path_text'):
+                self.path_text.SetBackgroundColour(bg_color)
+                self.path_text.SetForegroundColour(fg_color)
+            
+            # Apply to status bar
+            status_bar = self.GetStatusBar()
+            if status_bar:
+                status_bar.SetBackgroundColour(bg_color)
+                status_bar.SetForegroundColour(fg_color)
+            
+            # Refresh all controls
+            self.Refresh()
+            if hasattr(self, 'panel'):
+                self.panel.Refresh()
+            if hasattr(self, 'splitter'):
+                self.splitter.Refresh()
+            if hasattr(self, 'tree'):
+                self.tree.Refresh()
             self.text_display.Refresh()
+            if hasattr(self, 'path_text'):
+                self.path_text.Refresh()
+            if status_bar:
+                status_bar.Refresh()
 
             # Update status bar
-            self.SetStatusText(f"ThemeSwitched to: {theme_name}")  # Theme changed
+            self.SetStatusText(f"Theme switched to: {theme_name}")  # Theme changed
             logger.info(f"Theme changed: {theme_name}")
 
     def on_export_current(self, event):
@@ -2166,7 +2210,6 @@ Welcome to WeeViewer! A lightweight tool for viewing and analyzing JSON/XML data
    • History tracking for files and paths
    • Syntax highlighting
    • Dark/Light theme switching
-   • Export to CSV, HTML, PDF formats
 
 💡 Tips:
    • Click any node in the tree to see its details
