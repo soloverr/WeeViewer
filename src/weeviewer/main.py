@@ -1206,32 +1206,75 @@ class WeeViewer(wx.Frame):
                 status_bar.SetBackgroundColour(bg_color)
                 status_bar.SetForegroundColour(fg_color)
             
-            # Force complete refresh of all windows
-            self.Refresh()
-            if hasattr(self, 'panel'):
-                self.panel.Refresh()
-            if hasattr(self, 'splitter'):
-                self.splitter.Refresh()
-            if hasattr(self, 'tree'):
-                self.tree.Refresh()
-            self.text_display.Refresh()
-            if hasattr(self, 'path_text'):
-                self.path_text.Refresh()
-            if hasattr(self, 'toolbar'):
-                self.toolbar.Refresh()
-            if menubar:
-                menubar.Refresh()
-            if status_bar:
-                status_bar.Refresh()
+            # Force complete refresh of all windows immediately
+            def force_refresh():
+                """Force immediate refresh of all windows"""
+                self.Refresh()
+                self.Update()
+                
+                if hasattr(self, 'panel'):
+                    self.panel.Refresh()
+                    self.panel.Update()
+                
+                if hasattr(self, 'splitter'):
+                    self.splitter.Refresh()
+                    self.splitter.Update()
+                
+                if hasattr(self, 'tree'):
+                    self.tree.Refresh()
+                    self.tree.Update()
+                    # Force tree control to repaint
+                    self.tree.SetFocus()
+                
+                self.text_display.Refresh()
+                self.text_display.Update()
+                
+                if hasattr(self, 'path_text'):
+                    self.path_text.Refresh()
+                    self.path_text.Update()
+                
+                if hasattr(self, 'toolbar'):
+                    self.toolbar.Refresh()
+                    self.toolbar.Update()
+                
+                if menubar:
+                    menubar.Refresh()
+                    menubar.Update()
+                
+                if status_bar:
+                    status_bar.Refresh()
+                    status_bar.Update()
+                
+                # Refresh search controls
+                if hasattr(self, 'search_text'):
+                    self.search_text.Refresh()
+                    self.search_text.Update()
+                if hasattr(self, 'jump_text'):
+                    self.jump_text.Refresh()
+                    self.jump_text.Update()
+                
+                # Refresh search panel buttons
+                for btn_name in ['search_btn', 'next_btn', 'prev_btn', 'clear_btn']:
+                    if hasattr(self, btn_name):
+                        btn = getattr(self, btn_name)
+                        btn.Refresh()
+                        btn.Update()
+                
+                # Refresh checkboxes
+                for cb_name in ['whole_word', 'regex_mode']:
+                    if hasattr(self, cb_name):
+                        cb = getattr(self, cb_name)
+                        cb.Refresh()
+                        cb.Update()
+                
+                # Refresh label
+                if hasattr(self, 'search_result_label'):
+                    self.search_result_label.Refresh()
+                    self.search_result_label.Update()
             
-            # Refresh search controls
-            if hasattr(self, 'search_text'):
-                self.search_text.Refresh()
-            if hasattr(self, 'jump_text'):
-                self.jump_text.Refresh()
-            
-            # Update main window to ensure all changes take effect
-            self.Update()
+            # Force refresh immediately and also after event loop
+            force_refresh()
+            wx.CallLater(100, force_refresh)
             
             # Update status bar
             self.SetStatusText(f"Theme switched to: {theme_name}")  # Theme changed
