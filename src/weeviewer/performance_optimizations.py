@@ -476,7 +476,7 @@ class LRUCache:
         self.hits = 0
         self.misses = 0
 
-        logger.debug(f"LRUCache 初始化: max_size={max_size}, ttl={ttl}")
+        logger.debug(f"LRUCache initialized: max_size={max_size}, ttl={ttl}")
 
     def _generate_key(self, *args, **kwargs) -> str:
         """Generate cache key
@@ -686,7 +686,7 @@ class StreamingJSONParser:
             file_path: JSON file path
         """
         self.file_path = file_path
-        logger.info(f"StreamingJSONParser 初始化: {file_path}")
+        logger.info(f"StreamingJSONParser initialized: {file_path}")
 
     def parse(self) -> List[Dict[str, Any]]:
         """Parse JSON file
@@ -727,7 +727,7 @@ class StreamingXMLParser:
             file_path: XML file path
         """
         self.file_path = file_path
-        logger.info(f"StreamingXMLParser 初始化: {file_path}")
+        logger.info(f"StreamingXMLParser initialized: {file_path}")
 
     def parse(self) -> List[Dict[str, Any]]:
         """Parse XML file

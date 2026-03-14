@@ -8,14 +8,10 @@ a = Analysis(
     binaries=[],
     datas=[
         ('assets/app.ico', '.'),
-        ('config/config.json', 'config'),
-        ('config/config.xml', 'config'),
     ],
     hiddenimports=[
         'lxml.etree',
         'lxml._elementpath',
-        'reportlab.pdfbase._fontdata',
-        'reportlab.pdfbase._fontdata_encodings',
     ],
     hookspath=[],
     hooksconfig={},
