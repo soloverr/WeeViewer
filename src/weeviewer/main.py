@@ -374,7 +374,10 @@ class WeeViewer(wx.Frame):
 
         # Status bar
         self.CreateStatusBar()
-        self.SetStatusText("Ready")  # Ready
+        self.SetStatusText("Welcome - Drag and drop JSON/XML files here or use File→Open (Ctrl+O)")  # Welcome message with drag-drop hint
+
+        # Show welcome message and drag-drop hint
+        self._show_welcome_message()
 
         # Load menu
         self._create_menu()
@@ -2141,17 +2144,83 @@ class WeeViewer(wx.Frame):
         except Exception as e:
             self.text_display.SetValue(f'error when showing content: {e}')
 
+    def _show_welcome_message(self):
+        """Show welcome message and drag-drop hint"""
+        welcome_text = """
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                      WeeViewer - JSON/XML Data Viewer                    ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+Welcome to WeeViewer! A lightweight tool for viewing and analyzing JSON/XML data.
+
+📁 How to Open Files:
+   • Click "File" → "Open" in the menu bar (Ctrl+O)
+   • Drag and drop JSON or XML files directly onto this window
+   • Select from recent files in the "Recent Files" menu
+
+🔍 Key Features:
+   • Tree structure navigation for complex data
+   • Path extraction and copying
+   • Powerful search with regex support
+   • Bookmark management for important nodes
+   • History tracking for files and paths
+   • Syntax highlighting
+   • Dark/Light theme switching
+   • Export to CSV, HTML, PDF formats
+
+💡 Tips:
+   • Click any node in the tree to see its details
+   • Use the search box to find specific content
+   • Right-click nodes for context menu options
+   • Drag and drop files directly onto this window for quick access
+
+Ready to explore your data! Simply drag and drop a JSON or XML file to get started.
+"""
+        self.text_display.SetValue(welcome_text)
+        
+        # Update status bar with drag-drop hint
+        self.SetStatusText("Ready - Drag and drop JSON/XML files here to open them")
+
 
 class FileDropTarget(wx.FileDropTarget):
     def __init__(self, frame):
         super().__init__()
         self.frame = frame
+        self.original_background = None
+
+    def OnEnter(self, x, y, default_result):
+        """Called when files are dragged over the window"""
+        # Change background color to indicate drop zone
+        if self.frame.panel:
+            self.original_background = self.frame.panel.GetBackgroundColour()
+            self.frame.panel.SetBackgroundColour(wx.Colour(240, 248, 255))  # Light blue
+            self.frame.Refresh()
+        self.frame.SetStatusText("Drop JSON/XML files here to open")
+        return default_result
+
+    def OnLeave(self):
+        """Called when files leave the window"""
+        # Restore original background color
+        if self.frame.panel and self.original_background:
+            self.frame.panel.SetBackgroundColour(self.original_background)
+            self.frame.Refresh()
+            self.frame.SetStatusText("Ready")
+        return True
 
     def OnDropFiles(self, x, y, filenames):
-        for filename in filenames:
-            if filename.endswith('.xml') or filename.endswith('.json'):
-                self.frame.load_file_in_thread(filename)
-                break
+        """Called when files are dropped"""
+        # Restore original background
+        if self.frame.panel and self.original_background:
+            self.frame.panel.SetBackgroundColour(self.original_background)
+            self.frame.Refresh()
+        
+        # Process dropped files
+        valid_files = [f for f in filenames if f.endswith('.xml') or f.endswith('.json')]
+        if valid_files:
+            self.frame.SetStatusText(f"Opening {valid_files[0]}...")
+            self.frame.load_file_in_thread(valid_files[0])
+        else:
+            self.frame.SetStatusText("Invalid file type. Please drop JSON or XML files.")
         return True
 
 
