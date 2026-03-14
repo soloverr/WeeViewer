@@ -998,6 +998,12 @@ class WeeViewer(wx.Frame):
             bg_color = wx.Colour(theme.background)
             fg_color = wx.Colour(theme.foreground)
             
+            # Calculate border color (slightly darker/lighter than background)
+            if theme_name == 'dark':
+                border_color = wx.Colour(80, 80, 80)  # Darker gray for dark theme
+            else:
+                border_color = wx.Colour(200, 200, 200)  # Lighter gray for light theme
+            
             # Apply to main window
             self.SetBackgroundColour(bg_color)
             
@@ -1008,11 +1014,14 @@ class WeeViewer(wx.Frame):
             # Apply to splitter window
             if hasattr(self, 'splitter'):
                 self.splitter.SetBackgroundColour(bg_color)
+                self.splitter.SetSashGravity(0.5)
             
             # Apply to tree control
             if hasattr(self, 'tree'):
                 self.tree.SetBackgroundColour(bg_color)
                 self.tree.SetForegroundColour(fg_color)
+                # Set tree control border color
+                self.tree.SetWindowStyleFlag(self.tree.GetWindowStyleFlag() | wx.BORDER_SIMPLE)
             
             # Apply to text display
             self.text_display.SetBackgroundColour(bg_color)
@@ -1023,11 +1032,33 @@ class WeeViewer(wx.Frame):
                 self.path_text.SetBackgroundColour(bg_color)
                 self.path_text.SetForegroundColour(fg_color)
             
+            # Apply to toolbar
+            if hasattr(self, 'toolbar'):
+                self.toolbar.SetBackgroundColour(bg_color)
+                self.toolbar.SetForegroundColour(fg_color)
+            
+            # Apply to menubar
+            menubar = self.GetMenuBar()
+            if menubar:
+                menubar.SetBackgroundColour(bg_color)
+                menubar.SetForegroundColour(fg_color)
+            
             # Apply to status bar
             status_bar = self.GetStatusBar()
             if status_bar:
                 status_bar.SetBackgroundColour(bg_color)
                 status_bar.SetForegroundColour(fg_color)
+            
+            # Try to set scrollbar colors (platform-dependent)
+            try:
+                if hasattr(wx, 'SystemSettings'):
+                    # Set system colors for scrollbars
+                    if theme_name == 'dark':
+                        wx.SystemSettings.SetAppearance(wx.SystemAppearance_Dark)
+                    else:
+                        wx.SystemSettings.SetAppearance(wx.SystemAppearance_Light)
+            except:
+                pass  # System appearance setting may not be available on all platforms
             
             # Refresh all controls
             self.Refresh()
@@ -1040,6 +1071,10 @@ class WeeViewer(wx.Frame):
             self.text_display.Refresh()
             if hasattr(self, 'path_text'):
                 self.path_text.Refresh()
+            if hasattr(self, 'toolbar'):
+                self.toolbar.Refresh()
+            if menubar:
+                menubar.Refresh()
             if status_bar:
                 status_bar.Refresh()
 
