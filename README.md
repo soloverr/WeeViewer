@@ -159,7 +159,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Contact
 
-- Project homepage: https://github.com/yourusername/weeviewer
+- Project homepage: https://github.com/soloverr/WeeViewer
 
 ## Acknowledgments
 
