@@ -984,6 +984,103 @@ class WeeViewer(wx.Frame):
         else:
             wx.MessageBox(f"ApplyLayoutFailed: {layout_name}", "Error", wx.OK | wx.ICON_ERROR)  # Failed to apply layout
 
+    def _apply_theme_to_menu(self, menu: wx.Menu, bg_color: wx.Colour, fg_color: wx.Colour):
+        """Recursively apply theme colors to menu and all its items
+
+        Args:
+            menu: The menu to apply theme to
+            bg_color: Background color
+            fg_color: Foreground color
+        """
+        try:
+            menu.SetBackgroundColour(bg_color)
+            menu.SetTextColour(fg_color)
+            
+            # Apply to all menu items
+            for item in menu.GetMenuItems():
+                if item.IsSubMenu():
+                    # Recursively apply to submenu
+                    self._apply_theme_to_menu(item.GetSubMenu(), bg_color, fg_color)
+                else:
+                    # Try to set item text color (may not work on all platforms)
+                    try:
+                        item.SetTextColour(fg_color)
+                    except:
+                        pass
+        except Exception as e:
+            logger.warning(f"Failed to apply theme to menu: {e}")
+
+    def _apply_theme_to_toolbar(self, toolbar: wx.ToolBar, bg_color: wx.Colour, fg_color: wx.Colour):
+        """Apply theme colors to toolbar and its items
+
+        Args:
+            toolbar: The toolbar to apply theme to
+            bg_color: Background color
+            fg_color: Foreground color
+        """
+        try:
+            toolbar.SetBackgroundColour(bg_color)
+            toolbar.SetForegroundColour(fg_color)
+            
+            # Try to set toolbar item colors
+            for tool_id in toolbar.GetTools():
+                tool = toolbar.FindById(tool_id)
+                if tool:
+                    try:
+                        tool.SetNormalBitmap(tool.GetNormalBitmap())
+                    except:
+                        pass
+        except Exception as e:
+            logger.warning(f"Failed to apply theme to toolbar: {e}")
+
+    def _apply_theme_recursively(self, window: wx.Window, bg_color: wx.Colour, fg_color: wx.Colour):
+        """Recursively apply theme colors to a window and all its children
+
+        Args:
+            window: The window to apply theme to
+            bg_color: Background color
+            fg_color: Foreground color
+        """
+        try:
+            # Skip TextCtrl and TreeCtrl as they are handled separately
+            if not isinstance(window, (wx.TextCtrl, wx.TreeCtrl)):
+                window.SetBackgroundColour(bg_color)
+                window.SetForegroundColour(fg_color)
+            
+            # Recursively apply to all children
+            for child in window.GetChildren():
+                self._apply_theme_recursively(child, bg_color, fg_color)
+        except Exception as e:
+            logger.warning(f"Failed to apply theme to window {window.GetName()}: {e}")
+
+    def _set_system_colors(self, theme_name: str):
+        """Set system-level colors for scrollbars and other system controls
+
+        Args:
+            theme_name: Theme name ('dark' or 'light')
+        """
+        try:
+            if theme_name == 'dark':
+                # Set dark theme system colors
+                bg_color = wx.Colour(30, 30, 30)
+                fg_color = wx.Colour(212, 212, 212)
+                wx.SystemSettings.SetMetric(wx.SYS_COLOUR_WINDOW, bg_color)
+                wx.SystemSettings.SetMetric(wx.SYS_COLOUR_WINDOWTEXT, fg_color)
+                wx.SystemSettings.SetMetric(wx.SYS_COLOUR_BTNFACE, bg_color)
+                wx.SystemSettings.SetMetric(wx.SYS_COLOUR_BTNSHADOW, wx.Colour(80, 80, 80))
+                wx.SystemSettings.SetMetric(wx.SYS_COLOUR_BTNTEXT, fg_color)
+            else:
+                # Set light theme system colors
+                bg_color = wx.Colour(255, 255, 255)
+                fg_color = wx.Colour(0, 0, 0)
+                wx.SystemSettings.SetMetric(wx.SYS_COLOUR_WINDOW, bg_color)
+                wx.SystemSettings.SetMetric(wx.SYS_COLOUR_WINDOWTEXT, fg_color)
+                wx.SystemSettings.SetMetric(wx.SYS_COLOUR_BTNFACE, bg_color)
+                wx.SystemSettings.SetMetric(wx.SYS_COLOUR_BTNSHADOW, wx.Colour(200, 200, 200))
+                wx.SystemSettings.SetMetric(wx.SYS_COLOUR_BTNTEXT, fg_color)
+        except Exception as e:
+            logger.warning(f"Failed to set system colors: {e}")
+
     def on_change_theme(self, theme_name: str):
         """Change theme
 
@@ -1004,44 +1101,53 @@ class WeeViewer(wx.Frame):
             else:
                 border_color = wx.Colour(200, 200, 200)  # Lighter gray for light theme
             
+            # Set system colors first (for scrollbars and buttons)
+            self._set_system_colors(theme_name)
+            
             # Apply to main window
             self.SetBackgroundColour(bg_color)
             
             # Apply to panel
             if hasattr(self, 'panel'):
                 self.panel.SetBackgroundColour(bg_color)
+                # Recursively apply to all children of panel
+                self._apply_theme_recursively(self.panel, bg_color, fg_color)
             
             # Apply to splitter window
             if hasattr(self, 'splitter'):
                 self.splitter.SetBackgroundColour(bg_color)
                 self.splitter.SetSashGravity(0.5)
             
-            # Apply to tree control
+            # Apply to tree control (override recursive application)
             if hasattr(self, 'tree'):
                 self.tree.SetBackgroundColour(bg_color)
                 self.tree.SetForegroundColour(fg_color)
                 # Set tree control border color
                 self.tree.SetWindowStyleFlag(self.tree.GetWindowStyleFlag() | wx.BORDER_SIMPLE)
             
-            # Apply to text display
+            # Apply to text display (override recursive application)
             self.text_display.SetBackgroundColour(bg_color)
             self.text_display.SetForegroundColour(fg_color)
             
-            # Apply to path text control
+            # Apply to path text control (override recursive application)
             if hasattr(self, 'path_text'):
                 self.path_text.SetBackgroundColour(bg_color)
                 self.path_text.SetForegroundColour(fg_color)
             
-            # Apply to toolbar
+            # Apply to toolbar with special handling
             if hasattr(self, 'toolbar'):
-                self.toolbar.SetBackgroundColour(bg_color)
-                self.toolbar.SetForegroundColour(fg_color)
+                self._apply_theme_to_toolbar(self.toolbar, bg_color, fg_color)
             
-            # Apply to menubar
+            # Apply to menubar and all menus
             menubar = self.GetMenuBar()
             if menubar:
                 menubar.SetBackgroundColour(bg_color)
                 menubar.SetForegroundColour(fg_color)
+                # Apply to all menus in menubar
+                for i in range(menubar.GetMenuCount()):
+                    menu = menubar.GetMenu(i)
+                    if menu:
+                        self._apply_theme_to_menu(menu, bg_color, fg_color)
             
             # Apply to status bar
             status_bar = self.GetStatusBar()
@@ -1049,18 +1155,7 @@ class WeeViewer(wx.Frame):
                 status_bar.SetBackgroundColour(bg_color)
                 status_bar.SetForegroundColour(fg_color)
             
-            # Try to set scrollbar colors (platform-dependent)
-            try:
-                if hasattr(wx, 'SystemSettings'):
-                    # Set system colors for scrollbars
-                    if theme_name == 'dark':
-                        wx.SystemSettings.SetAppearance(wx.SystemAppearance_Dark)
-                    else:
-                        wx.SystemSettings.SetAppearance(wx.SystemAppearance_Light)
-            except:
-                pass  # System appearance setting may not be available on all platforms
-            
-            # Refresh all controls
+            # Force complete refresh of all windows
             self.Refresh()
             if hasattr(self, 'panel'):
                 self.panel.Refresh()
@@ -1077,7 +1172,10 @@ class WeeViewer(wx.Frame):
                 menubar.Refresh()
             if status_bar:
                 status_bar.Refresh()
-
+            
+            # Update main window to ensure all changes take effect
+            self.Update()
+            
             # Update status bar
             self.SetStatusText(f"Theme switched to: {theme_name}")  # Theme changed
             logger.info(f"Theme changed: {theme_name}")
