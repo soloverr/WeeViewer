@@ -84,21 +84,32 @@ The packaged executable will be located in the `dist` directory.
 
 ```
 WeeViewer/
-├── main.py                      # Main program
-├── config_manager.py            # Configuration management
-├── search_engine.py             # Search engine
-├── syntax_highlighter.py        # Syntax highlighting
-├── interaction_improvements.py  # Interaction improvements
-├── performance_optimizations.py # Performance optimizations
-├── appico.py                    # Icon handling
-├── config.json                  # Sample configuration file
-├── config.xml                   # Sample configuration file
-├── viewer_config.json           # User configuration file
-├── viewer.spec                  # PyInstaller packaging configuration
-├── pytest.ini                   # pytest configuration
-├── mypy.ini                     # mypy type checking configuration
-├── LICENSE                      # MIT License
-└── README.md                    # Project documentation
+├── src/
+│   └── weeviewer/
+│       ├── main.py                      # Main program
+│       ├── config_manager.py            # Configuration management
+│       ├── search_engine.py             # Search engine
+│       ├── syntax_highlighter.py        # Syntax highlighting
+│       ├── interaction_improvements.py  # Interaction improvements
+│       ├── performance_optimizations.py # Performance optimizations
+│       └── __init__.py                  # Package initialization
+├── assets/
+│   └── app.ico                          # Application icon
+├── config/
+│   └── viewer_config.json              # User configuration file
+├── tests/                              # Test files
+├── build/                              # Build files
+├── dist/                               # Packaged executables
+├── docs/                               # Documentation
+├── scripts/                            # Utility scripts
+├── viewer.spec                         # PyInstaller packaging configuration
+├── build.bat                           # Build script for Windows
+├── install_dependencies.bat             # Dependency installation script
+├── pytest.ini                          # pytest configuration
+├── mypy.ini                            # mypy type checking configuration
+├── requirements.txt                    # Python dependencies
+├── LICENSE                             # MIT License
+└── README.md                           # Project documentation
 ```
 
 ## Dependencies
