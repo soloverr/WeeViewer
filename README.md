@@ -4,6 +4,8 @@
 
 WeeViewer is a lightweight JSON/XML data viewer tool that helps quickly browse, search, and locate data structures, making data exploration simple and efficient.
 
+![WeeViewer Screenshot](assets/screenshot.jpg)
+
 WeeViewer is a lightweight JSON/XML data viewer tool that helps quickly browse, search, and locate data structures, making data exploration simple and efficient.
 
 ## Features
