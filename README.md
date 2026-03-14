@@ -1,6 +1,9 @@
 # WeeViewer
 
 > **Data Exploration, Together with You**
+> 数据探索 与你为伍
+
+WeeViewer（为伍）是一款轻量级的JSON/XML数据查看工具，帮助快速浏览、搜索和定位数据结构，让数据探索变得简单高效。
 
 WeeViewer is a lightweight JSON/XML data viewer tool that helps quickly browse, search, and locate data structures, making data exploration simple and efficient.
 
